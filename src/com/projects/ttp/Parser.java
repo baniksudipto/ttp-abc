@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Parser {
@@ -27,16 +28,40 @@ class Point {
         X = Double.parseDouble(words[1].trim());
         Y = Double.parseDouble(words[2].trim());
     }
+
+    @Override
+    public String toString() {
+        return "Point{" +
+                "X=" + X +
+                ", Y=" + Y +
+                '}';
+    }
 }
 
 class Item {
     public double Profit, Weight;
     public int AssignedNode;
 
+    public Item(String s) {
+        String[] ss = s.split("\\s+");
+        Profit = Double.parseDouble(ss[1]);
+        Weight = Double.parseDouble(ss[2]);
+        AssignedNode = Integer.parseInt(ss[3]) - 1; // -1 for resetting to zero based index
+    }
+
     public Item(double profit, double weight, int assignedNode) {
         Profit = profit;
         Weight = weight;
         AssignedNode = assignedNode;
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "Profit=" + Profit +
+                ", Weight=" + Weight +
+                ", AssignedNode=" + AssignedNode +
+                '}';
     }
 }
 
@@ -59,6 +84,11 @@ class Problem {
         RentingRatio = Double.parseDouble(getValue(lines[7]));
         EdgeWeightType = getValue(lines[8]);
         points = makePoints(java.util.Arrays.stream(lines, pointsStartAt, pointsStartAt + Dimension));
+        items = makeItems(java.util.Arrays.stream(lines, itemsStartAt(), itemsStartAt() + NumberOfItems));
+    }
+
+    private int itemsStartAt() {
+        return Problem.pointsStartAt + Dimension + 1;
     }
 
     private String getValue(String value) {
@@ -66,8 +96,11 @@ class Problem {
     }
 
     private Point[] makePoints(Stream<String> stream) {
-        // todo
-        return new Point[10];
+        return stream.map(Point::new).collect(Collectors.toList()).toArray(Point[]::new);
+    }
+
+    private Item[] makeItems(Stream<String> stream) {
+        return stream.map(Item::new).collect(Collectors.toList()).toArray(Item[]::new);
     }
 
     @Override
